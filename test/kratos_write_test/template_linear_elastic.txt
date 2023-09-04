@@ -1,0 +1,73 @@
+from KratosMultiphysics.GeoMechanicsApplication.user_defined_scripts.user_defined_parameter_field_base \
+    import ParameterFieldBase
+from gstools import SRF, Gaussian
+import numpy as np
+
+
+class ParameterField(ParameterFieldBase):
+    """
+    Base class of a user defined parameter field
+    """
+
+    def __init__(self):
+        super(ParameterField, self).__init__()
+
+    def validate_input(self, input_dict, output_dict):
+        """
+        Validates input for custom parameter field
+
+        Parameters
+        ----------
+        input_dict dictionary with input values
+        output_dict dictionary with output values
+
+        Returns
+        -------
+
+        """
+        super(ParameterField, self).validate_input(input_dict, output_dict)
+
+        # add custom validation here
+
+    def validate_output(self):
+        """
+        Validates input for custom parameter field
+
+        Parameters
+        ----------
+        input_dict dictionary with input values
+        output_dict dictionary with output values
+
+        Returns
+        -------
+
+        """
+        super(ParameterField, self).validate_output()
+
+        # add custom validation here
+
+    def generate_field(self):
+        """
+        Generates custom parameter field
+
+        """
+        super(ParameterField, self).generate_field()
+
+        input_dict = self.get_input()
+        output_dict = self.get_output()
+
+        x = [coord[0] for coord in input_dict["coordinates"]]
+        y = [coord[1] for coord in input_dict["coordinates"]]
+        # set random field parameters
+        seed = {{ seed }}
+        mean = {{ mean }}
+        std_value = {{ std_value }}
+        aniso_x = {{ aniso_x }}
+        aniso_y = {{ aniso_y }}
+        len_scale = np.array([aniso_x, aniso_y])
+        var = std_value ** 2
+
+        model = Gaussian(dim=2, var=var, len_scale=len_scale, seed=seed)
+        srf = SRF(model, mean=mean, seed=seed)
+        new_values = srf((x, y), mesh_type="unstructured", seed=seed)
+        output_dict["values"] = new_values.tolist()
